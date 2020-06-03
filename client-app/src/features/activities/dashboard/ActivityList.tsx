@@ -1,22 +1,16 @@
-import React, {SyntheticEvent} from 'react'
+import React, { useContext} from 'react'
 import {Button, Item, Label, Segment} from 'semantic-ui-react'
-import {IActivity} from "../../../app/models/activity";
+import {observer} from "mobx-react-lite";
+import ActivityStore from "../../../app/stores/activityStore";
 
-interface IProps {
-    activities: IActivity[];
-    selectActivity: (id: string) => void;
-    setEditMode: (editMode: boolean) => void;
-    deleteActivity: (event: SyntheticEvent<HTMLButtonElement>, id: string) => void;
-    submitting: boolean;
-    target: string;
-}
-export const ActivityList: React.FC<IProps> = ({activities, selectActivity,
-                                                   setEditMode, deleteActivity, submitting,
-                                               target}) => {
+
+const ActivityList: React.FC = () => {
+    const activityStore = useContext(ActivityStore);
+    const {activityByDate, selectActivity, deleteActivity, target, submitting} = activityStore;
     return (
         <Segment clearing>
             <Item.Group divided>
-                {activities.map((activity => (
+                {activityByDate.map((activity => (
                     <Item key={activity.id}>
                         <Item.Content>
                             <Item.Header as='a'>{activity.title}</Item.Header>
@@ -28,7 +22,6 @@ export const ActivityList: React.FC<IProps> = ({activities, selectActivity,
                             <Item.Extra>
                                 <Button onClick={() => {
                                     selectActivity(activity.id)
-                                    setEditMode(false)
                                 }} floated={"right"} content={'View'} color={"blue"}/>
                                 <Button name={activity.id} loading={target === activity.id && submitting} onClick={(e) => {
                                     deleteActivity(e, activity.id)
@@ -41,5 +34,7 @@ export const ActivityList: React.FC<IProps> = ({activities, selectActivity,
 
             </Item.Group>
         </Segment>
-    )
-}
+    );
+};
+
+export default observer(ActivityList);
