@@ -1,14 +1,29 @@
-import React, {useContext} from 'react'
-import {Button, ButtonGroup, Card, Image} from 'semantic-ui-react'
+import React, {useContext, useEffect} from 'react'
+import {Button, ButtonGroup, Card, Image, Grid, GridColumn} from 'semantic-ui-react'
 import ActivityStore from "../../../app/stores/activityStore";
 import {observer} from "mobx-react-lite";
+import { RouteComponentProps, Link } from 'react-router-dom';
+import { LoadingComponent } from '../../../app/layout/LoadingComponent';
 
+interface DetailsParametr {
+    id: string
+}
 
-const ActivityDetails: React.FC = () => {
+const ActivityDetails: React.FC<RouteComponentProps<DetailsParametr>> = ({match, history}) => {
     const activityStore = useContext(ActivityStore);
-    const {selectedActivity: activity, openEditForm, cancelSelectedActivity} = activityStore;
+    const {activity,  loadActivity, loadingInitial} = activityStore;
+
+    useEffect(() => {
+        loadActivity(match.params.id);
+    }, [loadActivity, match.params.id])
+
+    if (loadingInitial || !activity) return <LoadingComponent content='Loading activity...' />
+
     return (
-        <Card fluid>
+        <Grid>
+            <GridColumn width={4}></GridColumn>
+            <GridColumn width={8}>
+            <Card fluid>
             <Image src={`/assets/categoryImages/${activity!.category}.jpg`} wrapped ui={false} />
             <Card.Content>
                 <Card.Header>{activity!.title}</Card.Header>
@@ -21,11 +36,14 @@ const ActivityDetails: React.FC = () => {
             </Card.Content>
             <Card.Content extra>
                 <ButtonGroup widths={2}>
-                    <Button basic color={"blue"} content={"Edit"} onClick={() => {openEditForm(activity!.id)}}/>
-                    <Button onClick={cancelSelectedActivity} basic color={"grey"} content={"Cancel"} />
+                    <Button basic color={"blue"} content={"Edit"} as={Link} to={`/menage/${activity.id}`} />
+                    <Button onClick={() => history.push('/activities')} basic color={"grey"} content={"Cancel"} />
                 </ButtonGroup>
             </Card.Content>
         </Card>
+            </GridColumn>
+            <GridColumn width={4}></GridColumn>
+        </Grid>
     )
 };
 export default observer(ActivityDetails);

@@ -1,53 +1,34 @@
-import React, { useEffect, Fragment, useContext} from 'react';
+import React, {Fragment} from 'react';
 import {Container} from 'semantic-ui-react';
 import NavBar from "../../features/nav/NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
-import {LoadingComponent} from "./LoadingComponent";
-import ActivityStore from '../stores/activityStore';
 import {observer} from 'mobx-react-lite';
+import { Route, withRouter, RouteComponentProps } from 'react-router-dom';
+import ActivityForm from '../../features/activities/form/ActivityForm';
+import  HomePage  from '../../features/home/HomePage';
+import ActivityDetails from '../../features/activities/details/ActivityDetails';
 
 
-const App = () => {
-    const activityStore = useContext(ActivityStore)
-    // const [activities, setActivities] = useState<IActivity[]>([]);
-    // const [selectedActivity, setSelectedActivity] = useState<IActivity | null>(null);
-    // const [editMode, setEditMode] = useState<boolean>(false);
-    // const [submitting, setSubmitting] = useState<boolean>(false);
-    // const [target, setTarget] = useState<string>('');
 
 
-    // const handleEditActivity = (activity: IActivity) => {
-    //     setSubmitting(true);
-    //     agent.Activities.update(activity).then(() => {
-    //         setActivities([...activities.filter(z => z.id !== activity.id), activity]);
-    //         setSelectedActivity(activity);
-    //         setEditMode(false);
-    //     }).then(() => setSubmitting(false))
-    // }
-    // const handleDeleteActivity = (event: SyntheticEvent<HTMLButtonElement>, id: string) => {
-    //     setSubmitting(true);
-    //     setTarget(event.currentTarget.name);
-    //     agent.Activities.delete(id).then(() => {
-    //         setActivities([...activities.filter(z => z.id !== id)]);
-    //         setSelectedActivity(null);
-    //         setEditMode(false);
-    //     }).then(() => setSubmitting(false))
-    // }
-
-    useEffect(() => {
-        activityStore.loadActivities();
-    }, [activityStore])
-
-    if (activityStore.loadingInitial) return <LoadingComponent content={"Loading activity..."} />
-
+const App: React.FC<RouteComponentProps> = ({location}) => {
     return (
         <Fragment>
-            <NavBar/>
+            <Route exact path='/' component={HomePage} />
+            <Route path={'/(.+)'} render={() => (
+                <Fragment>
+                    <NavBar/>
             <Container style={{marginTop: '7em'}}>
-                <ActivityDashboard/>
+                
+                <Route exact path='/activities' component={ActivityDashboard} />
+                <Route path='/activities/:id' component={ActivityDetails} />
+                <Route key={location.key} path={['/createActivity', '/menage/:id']} component={ActivityForm} />
             </Container>
+                </Fragment>
+            )} />
+            
         </Fragment>
     );
 }
 
-export default observer(App);
+export default withRouter(observer(App));
